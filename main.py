@@ -100,9 +100,9 @@ maps = [
 def liga_pontos(pa,pb,dist):
     pass
 
-#liga_pontos(maps[0],maps[1],100)
+liga_pontos(maps[0],maps[1],100)
 
-def linha_reta(pa,pb):
+'''def linha_reta(pa,pb):
     circterra = 40075000
     dy = (pa['latitude'] - pb['latitude']) * circterra/360
 
@@ -111,4 +111,20 @@ def linha_reta(pa,pb):
 
     dx = (pa['longitude'] * fator_p1 - pb['longitude'] * fator_p2) * circterra/360
 
+    return dx
+'''
 
+def linha_reta(pa, pb):
+    circterra = 40075000
+    lat1, lon1 = float(pa['latitude']), float(pa['longitude'])
+    lat2, lon2 = float(pb['latitude']), float(pb['longitude'])
+    dy = (lat1 - lat2) * circterra / 360
+
+    fator_p1 = math.cos(math.radians(lat1))
+    fator_p2 = math.cos(math.radians(lat2))
+
+    dx = (lon1 * fator_p1 - lon2 * fator_p2) * circterra / 360
+
+    return math.sqrt(dx ** 2 + dy ** 2)
+
+print(linha_reta(maps[0],maps[1]))
