@@ -1,4 +1,4 @@
-
+import math
 maps = [
     {
         "id": "p1",
@@ -96,4 +96,19 @@ maps = [
         "destino": ["p9", "p11"]
     },
 ]
+
+def liga_pontos(pa,pb,dist):
+    pass
+
+#liga_pontos(maps[0],maps[1],100)
+
+def linha_reta(pa,pb):
+    circterra = 40075000
+    dy = (pa['latitude'] - pb['latitude']) * circterra/360
+
+    fator_p1 = math.cos(math.radians(pa['latitude']))
+    fator_p2 = math.cos(math.radians(pb['latitude']))
+
+    dx = (pa['longitude'] * fator_p1 - pb['longitude'] * fator_p2) * circterra/360
+
 
