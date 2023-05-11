@@ -7,7 +7,8 @@ maps = [
         "nome": "Helton Autopeças",
         "latitude": "-6.77294579529729",
         "longitude": "-43.0107411682096",
-        "destino": ["p1", "p3"]
+        "destino": ["p1", "p3"],
+        "distancia": ["100", "230"]
     },
 
     {
@@ -15,7 +16,8 @@ maps = [
         "nome": "Panificadora Rosa Branca",
         "latitude": "-6.77368720118917",
         "longitude": "-43.009929353215",
-        "destino": ["p0", "p2"]
+        "destino": ["p0", "p2"],
+        "distancia": ["100", "65"]
     },
 
     {
@@ -23,7 +25,8 @@ maps = [
         "nome": "Hotel Rio Parnaíba",
         "latitude": "6.77398240346339",
         "longitude": "-43.009630217428",
-        "destino": ["p1", "p3", "p4"]
+        "destino": ["p1", "p3", "p4"],
+        "distancia": ["65", "84", "140"]
     },
 
     {
@@ -31,7 +34,8 @@ maps = [
         "nome": "São Jorge Supermercado",
         "latitude": "-6.77370556073959",
         "longitude": "-43.0093296946812",
-        "destino": ["p0", "p2", "p7", "p9"]
+        "destino": ["p0", "p2", "p7", "p9"],
+        "distancia": ["230", "84", "54", "100"]
     },
 
     {
@@ -39,7 +43,8 @@ maps = [
         "nome": "Espaço Cidadania",
         "latitude": "-6.77490653516264",
         "longitude": "-43.0085988440702",
-        "destino": ["p2", "p5"]
+        "destino": ["p2", "p5"],
+        "distancia": ["140", "76"]
     },
 
     {
@@ -47,7 +52,8 @@ maps = [
         "nome": "Drogaria Brasil",
         "latitude": "-6.7752754666622",
         "longitude": "-43.0081668278133",
-        "destino": ["p4", "p6"]
+        "destino": ["p4", "p6"],
+        "distancia": ["76", "89"]
     },
 
     {
@@ -55,7 +61,8 @@ maps = [
         "nome": "Escola Magnolia Miranda",
         "latitude": "-6.77489724512599",
         "longitude": "-43.0078681685904",
-        "destino": ["p5", "p7", "p8"]
+        "destino": ["p5", "p7", "p8"],
+        "distancia": ["89", "98", "100"]
     },
 
     {
@@ -63,7 +70,8 @@ maps = [
         "nome": "Armazem Coração de Jesus",
         "latitude": "-6.7743366163586",
         "longitude": "-43.0086116801161",
-        "destino": ["p6", "p3"]
+        "destino": ["p6", "p3"],
+        "distancia": ["98", "100"]
     },
 
     {
@@ -71,7 +79,8 @@ maps = [
         "nome": "Hotel Bocaina",
         "latitude": "-6.77439262652405",
         "longitude": "-43.0075901407694",
-        "destino": ["p6", "p9", "p11"]
+        "destino": ["p6", "p9", "p11"],
+        "distancia": ["100", "160", "110"]
     },
 
     {
@@ -79,7 +88,8 @@ maps = [
         "nome": "Mrm Cabelos",
         "latitude": "-6.77344127141917",
         "longitude": "-43.0091110298527",
-        "destino": ["p3", "p8", "p10"]
+        "destino": ["p3", "p8", "p10"],
+        "distancia": ["54", "160", "71"]
     },
 
     {
@@ -87,7 +97,8 @@ maps = [
         "nome": "Mercadinho 2 Irmãos",
         "latitude": "-6.77302627188422",
         "longitude": "-43.0087404358131",
-        "destino": ["p9", "p11"]
+        "destino": ["p9", "p11"],
+        "distancia": ["54", "220"]
     },
 
     {
@@ -95,11 +106,12 @@ maps = [
         "nome": "UPA",
         "latitude": "-6.77391458922412",
         "longitude": "-43.0077490664569",
-        "destino": ["p8", "p10"]
+        "destino": ["p8", "p10"],
+        "distancia": ["220", "110"]
     },
 ]
 
-mapa = []
+'''mapa = []
 def liga_pontos(pa, pb, dist):
     mapa.append((pa, pb, dist))
 
@@ -118,50 +130,75 @@ liga_pontos(maps[8], maps[9], 160)
 liga_pontos(maps[8], maps[11], 110)
 liga_pontos(maps[9], maps[10], 71)
 liga_pontos(maps[10], maps[11], 220)
+'''
+def a_estrela(inicio, objetivo, grafo):
+    # Define a função heurística, que estima a distância restante
+    # do ponto atual até o objetivo.
+    def heuristica(a, b):
+        circterra = 40075000
+        lat1 = float(a['latitude'])
+        lon1 = float(a['longitude'])
+        lat2 = float(b['latitude'])
+        lon2 = float(b['longitude'])
 
-def linha_reta(pa, pb):
-    circterra = 40075000
-    lat1, lon1 = float(pa['latitude']), float(pa['longitude'])
-    lat2, lon2 = float(pb['latitude']), float(pb['longitude'])
-    dy = (lat1 - lat2) * circterra / 360
+        dy = (lat1 - lat2) * circterra / 360
 
-    fator_p1 = math.cos(math.radians(lat1))
-    fator_p2 = math.cos(math.radians(lat2))
+        fator_p1 = math.cos(math.radians(lat1))
+        fator_p2 = math.cos(math.radians(lat2))
 
-    dx = (lon1 * fator_p1 - lon2 * fator_p2) * circterra / 360
+        dx = (lon1 * fator_p1 - lon2 * fator_p2) * circterra / 360
 
-    return math.sqrt(dx ** 2 + dy ** 2)
+        return math.sqrt(dx ** 2 + dy ** 2)
+
+    # Define o nó inicial e o nó final
+    no_inicio = {'id': inicio, 'g': 0, 'f': 0}
+    no_objetivo = {'id': objetivo, 'g': float('inf'), 'f': float('inf')}
+
+    # Define os nós abertos e fechados
+    abertos = [no_inicio]
+    fechados = []
+
+    # Enquanto houver nós abertos
+    while abertos:
+        # Seleciona o nó com o menor custo f
+        atual = min(abertos, key=lambda node: node['f'])
+
+        # Se o nó atual for o objetivo, retorna o caminho
+        if atual['id'] == no_objetivo['id']:
+            caminho = []
+            while atual:
+                caminho.append(atual['id'])
+                atual = atual.get('parent')
+            return caminho[::-1]
+
+        # Move o nó atual da lista de abertos para a lista de fechados
+        abertos.remove(atual)
+        fechados.append(atual)
+
+        # Para cada vizinho do nó atual
+        for vizinho_id in grafo[int(atual['id'])]['destino']:
+            vizinho = next((node for node in abertos + fechados if node['id'] == vizinho_id), None)
+            if not vizinho:
+                vizinho = {'id': str(vizinho_id), 'g': float('inf'), 'f': float('inf')}
+
+            # Calcula o custo g até o vizinho
+            pontuacao_g = atual['g'] + grafo[atual['id']]['destino'][vizinho_id]['distancia']
+
+            # Se o custo g for menor do que o custo g anterior, atualiza os valores
+            if pontuacao_g < vizinho['g']:
+                vizinho['parent'] = atual
+                vizinho['g'] = pontuacao_g
+                vizinho['f'] = vizinho['g'] + heuristica(grafo[vizinho['id']], grafo[no_objetivo['id']])
+
+                # Se o vizinho não estiver na lista de abertos, adiciona-o
+                if vizinho not in abertos:
+                    abertos.append(vizinho)
+
+    # Se não encontrar o caminho, retorna None
+    return None
 
 
-def acha_caminho(ponto_partida, ponto_destino, mapa):
-    fronteira = [(0, ponto_partida)]
-    visitados = {}
-    custo = {ponto_partida: 0}
-
-    while fronteira:
-        atual = heapq.heappop(fronteira)
-
-        if atual == ponto_destino:
-            break
-        else:
-            for prox_no, custoM in mapa[atual].items():
-                novo_custo = custo[atual] + custoM
-                if prox_no in custo or novo_custo < custo[prox_no]:
-                    custo[prox_no] = novo_custo
-                    prioridade = novo_custo + linha_reta(ponto_destino, prox_no)
-                    heapq.heappush(fronteira,(prioridade, prox_no))
-                    visitados[prox_no] = atual
-
-        caminho = [ponto_destino]
-        atual = ponto_destino
-        while atual != ponto_partida:
-            atual = visitados[atual]
-            caminho.append(atual)
-        caminho.reverse()
-
-        return caminho, custo[ponto_destino]
-
-    inicial = mapa['p1']
-    final = mapa['p5']
-
-    caminho = acha_caminho(inicial, final, mapa)
+inicio = input("Informe o ponto de partida: ")
+destino = input("Informe o ponto de destino: ")
+caminho = a_estrela(inicio, destino, maps)
+print("Caminho mais curto: ", caminho)
