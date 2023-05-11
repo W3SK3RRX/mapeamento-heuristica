@@ -111,94 +111,63 @@ maps = [
     },
 ]
 
-'''mapa = []
-def liga_pontos(pa, pb, dist):
-    mapa.append((pa, pb, dist))
+def heuristica(lat1, lon1, lat2, lon2):
+    lat1, lon1 = math.radians(float(lat1)), math.radians(float(lon1))
+    lat2, lon2 = math.radians(float(lat2)), math.radians(float(lon2))
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
 
-liga_pontos(maps[0], maps[1], 100)
-liga_pontos(maps[0], maps[3], 230)
-liga_pontos(maps[1], maps[2], 65)
-liga_pontos(maps[2], maps[3], 84)
-liga_pontos(maps[2], maps[4], 140)
-liga_pontos(maps[3], maps[9], 54)
-liga_pontos(maps[3], maps[7], 100)
-liga_pontos(maps[4], maps[5], 76)
-liga_pontos(maps[5], maps[6], 89)
-liga_pontos(maps[6], maps[7], 98)
-liga_pontos(maps[6], maps[8], 100)
-liga_pontos(maps[8], maps[9], 160)
-liga_pontos(maps[8], maps[11], 110)
-liga_pontos(maps[9], maps[10], 71)
-liga_pontos(maps[10], maps[11], 220)
-'''
-def a_estrela(inicio, objetivo, grafo):
-    # Define a função heurística, que estima a distância restante
-    # do ponto atual até o objetivo.
-    def heuristica(a, b):
-        circterra = 40075000
-        lat1 = float(a['latitude'])
-        lon1 = float(a['longitude'])
-        lat2 = float(b['latitude'])
-        lon2 = float(b['longitude'])
+    R = (lat1 - lat2) * 40075000 / 360 # raio da terra
 
-        dy = (lat1 - lat2) * circterra / 360
+    a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
 
-        fator_p1 = math.cos(math.radians(lat1))
-        fator_p2 = math.cos(math.radians(lat2))
 
-        dx = (lon1 * fator_p1 - lon2 * fator_p2) * circterra / 360
+def a_estrela(inicio, objetivo, maps):
+    nos = {}
+    for ponto in maps:
+        nos[ponto['id']]  = {'lat': ponto['latitude'],
+                             'long': ponto['longitude'],
+                             'dest': ponto['destino'],
+                             'dist': ponto['distancia'],
+                             'g': float('inf'), 'h': 0,
+                             'pai': None}
 
-        return math.sqrt(dx ** 2 + dy ** 2)
+        lista_aberta = [(0, inicio)]
+        lista_fechada = []
 
-    # Define o nó inicial e o nó final
-    no_inicio = {'id': inicio, 'g': 0, 'f': 0}
-    no_objetivo = {'id': objetivo, 'g': float('inf'), 'f': float('inf')}
+        while lista_aberta:
+            _, id_atual = heapq.heappop(lista_aberta)
+            no_atual = nos[id_atual]
+            lista_fechada.append(id_atual)
 
-    # Define os nós abertos e fechados
-    abertos = [no_inicio]
-    fechados = []
+            if id_atual == destino:
+                caminho = []
+                while no_atual:
+                    caminho.append(id_atual)
+                    id_atual = no_atual['pai']
+                    no_atual = nos.get(id_atual)
+                return caminho[::-1]
 
-    # Enquanto houver nós abertos
-    while abertos:
-        # Seleciona o nó com o menor custo f
-        atual = min(abertos, key=lambda node: node['f'])
+        for i, id_vizinho in enumerate(no_atual['dest']):
+            no_vizinho = nos.get(id_vizinho)
+            if not no_vizinho or id_vizinho in lista_fechada:
+                 continue
+            g = no_atual['g'] + float(no_atual['dist'][i])
+            if g < no_vizinho['g'] or id_vizinho not in [id for _, id in lista_aberta]:
+                no_vizinho['g'] = g
+                no_vizinho['h'] = heuristica(no_vizinho['lat'], no_vizinho['long'], nos[destino]['lat'], nos[destino]['long'])
+                no_vizinho['pai'] = id_atual
+                heapq.heappush(lista_aberta, (no_vizinho['g'] + no_vizinho['h'], id_vizinho))
 
-        # Se o nó atual for o objetivo, retorna o caminho
-        if atual['id'] == no_objetivo['id']:
-            caminho = []
-            while atual:
-                caminho.append(atual['id'])
-                atual = atual.get('parent')
-            return caminho[::-1]
-
-        # Move o nó atual da lista de abertos para a lista de fechados
-        abertos.remove(atual)
-        fechados.append(atual)
-
-        # Para cada vizinho do nó atual
-        for vizinho_id in grafo[int(atual['id'])]['destino']:
-            vizinho = next((node for node in abertos + fechados if node['id'] == vizinho_id), None)
-            if not vizinho:
-                vizinho = {'id': str(vizinho_id), 'g': float('inf'), 'f': float('inf')}
-
-            # Calcula o custo g até o vizinho
-            pontuacao_g = atual['g'] + grafo[atual['id']]['destino'][vizinho_id]['distancia']
-
-            # Se o custo g for menor do que o custo g anterior, atualiza os valores
-            if pontuacao_g < vizinho['g']:
-                vizinho['parent'] = atual
-                vizinho['g'] = pontuacao_g
-                vizinho['f'] = vizinho['g'] + heuristica(grafo[vizinho['id']], grafo[no_objetivo['id']])
-
-                # Se o vizinho não estiver na lista de abertos, adiciona-o
-                if vizinho not in abertos:
-                    abertos.append(vizinho)
-
-    # Se não encontrar o caminho, retorna None
     return None
-
 
 inicio = input("Informe o ponto de partida: ")
 destino = input("Informe o ponto de destino: ")
 caminho = a_estrela(inicio, destino, maps)
-print("Caminho mais curto: ", caminho)
+
+if caminho:
+    print(f'O caminho mais curto de {inicio} até {destino} é: {caminho}')
+#else:
+    #print(f'Não há caminho possível de {inicio} até {destino}.')
