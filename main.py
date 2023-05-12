@@ -125,55 +125,53 @@ def heuristica(lat1, lon1, lat2, lon2):
     return R * c
 
 
-import heapq
-
-
 def a_estrela(inicio, objetivo, maps):
     nos = {}
     for ponto in maps:
-        nos[ponto['id']] = {'lat': ponto['latitude'],
+        nos[ponto['id']] = {'nome': ponto['nome'],
+                            'lat': ponto['latitude'],
                             'long': ponto['longitude'],
                             'dest': ponto['destino'],
                             'dist': ponto['distancia'],
-                            'g': float('inf'), 'h': 0,
+                            'g': float('inf'),
                             'pai': None}
 
-        lista_aberta = [(0, inicio)]
-        lista_fechada = []
+    heap = [(0, inicio)]
+    nos[inicio]['g'] = 0
 
-    while lista_aberta:
-        _, id_atual = heapq.heappop(lista_aberta)
-        no_atual = nos[id_atual]
-        lista_fechada.append(id_atual)
+    while heap:
+        (f, atual) = heapq.heappop(heap)
 
-        if id_atual == objetivo:
+        if atual == objetivo:
             caminho = []
-            while no_atual:
-                caminho.append(id_atual)
-                id_atual = no_atual['pai']
-                no_atual = nos.get(id_atual)
-            return caminho[::-1]
+            while atual is not None:
+                caminho.append(nos[atual]['nome'])
+                atual = nos[atual]['pai']
+            caminho.reverse()
+            return caminho
 
-        for i, id_vizinho in enumerate(no_atual['dest']):
-            no_vizinho = nos.get(id_vizinho)
-            if not no_vizinho or id_vizinho in lista_fechada:
-                continue
-            g = no_atual['g'] + float(no_atual['dist'][i])
-            if g < no_vizinho['g'] or id_vizinho not in [id for _, id in lista_aberta]:
-                no_vizinho['g'] = g
-                no_vizinho['h'] = heuristica(no_vizinho['lat'], no_vizinho['long'], nos[objetivo]['lat'],
-                                             nos[objetivo]['long'])
-                no_vizinho['pai'] = id_atual
-                heapq.heappush(lista_aberta, (no_vizinho['g'] + no_vizinho['h'], id_vizinho))
+        for i, vizinho in enumerate(nos[atual]['dest']):
+            g_vizinho = nos[atual]['g'] + float(nos[atual]['dist'][i])
+            h_vizinho = heuristica(nos[vizinho]['lat'], nos[vizinho]['long'], nos[objetivo]['lat'], nos[objetivo]['long'])
+            f_vizinho = g_vizinho + h_vizinho
+
+            if f_vizinho < nos[vizinho]['g']:
+                nos[vizinho]['g'] = f_vizinho
+                nos[vizinho]['pai'] = atual
+                heapq.heappush(heap, (f_vizinho, vizinho))
 
     return None
 
-
+print(30 * "-=-")
+for ponto in maps:
+    print(ponto['id'], ponto['nome'])
+print(30 * "-=-")
 inicio = input("Informe o ponto de partida: ")
+print(30 * "-=-")
 destino = input("Informe o ponto de destino: ")
 caminho = a_estrela(inicio, destino, maps)
 
 if caminho:
     print(f'O caminho mais curto de {inicio} até {destino} é: {caminho}')
-# else:
-# print(f'Não há caminho possível de {inicio} até {destino}.')
+else:
+    print(f'Não há caminho possível de {inicio} até {destino}.')
