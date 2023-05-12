@@ -23,7 +23,7 @@ maps = [
     {
         "id": "p2",
         "nome": "Hotel Rio Parnaíba",
-        "latitude": "6.77398240346339",
+        "latitude": "-6.77398240346339",
         "longitude": "-43.009630217428",
         "destino": ["p1", "p3", "p4"],
         "distancia": ["65", "84", "140"]
@@ -35,7 +35,7 @@ maps = [
         "latitude": "-6.77370556073959",
         "longitude": "-43.0093296946812",
         "destino": ["p0", "p2", "p7", "p9"],
-        "distancia": ["230", "84", "54", "100"]
+        "distancia": ["230", "84", "100", "54"]
     },
 
     {
@@ -98,7 +98,7 @@ maps = [
         "latitude": "-6.77302627188422",
         "longitude": "-43.0087404358131",
         "destino": ["p9", "p11"],
-        "distancia": ["54", "220"]
+        "distancia": ["71", "220"]
     },
 
     {
@@ -107,7 +107,7 @@ maps = [
         "latitude": "-6.77391458922412",
         "longitude": "-43.0077490664569",
         "destino": ["p8", "p10"],
-        "distancia": ["220", "110"]
+        "distancia": ["110", "220"]
     },
 ]
 
@@ -158,9 +158,10 @@ def a_estrela(inicio, objetivo, maps):
             if f_vizinho < nos[vizinho]['g']:
                 nos[vizinho]['g'] = f_vizinho
                 nos[vizinho]['pai'] = atual
-                heapq.heappush(heap, (f_vizinho, vizinho))
+                heapq.heappush(heap, (f_vizinho, vizinho))# adiciona o vizinho na lista de prioridade
 
     return None
+
 
 print(30 * "-=-")
 for ponto in maps:
@@ -169,6 +170,7 @@ print(30 * "-=-")
 inicio = input("Informe o ponto de partida: ")
 print(30 * "-=-")
 destino = input("Informe o ponto de destino: ")
+print(30 * "-=-")
 caminho = a_estrela(inicio, destino, maps)
 
 if caminho:
